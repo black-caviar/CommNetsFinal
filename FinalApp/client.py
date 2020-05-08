@@ -1,4 +1,10 @@
-
+username = input("Username: ")
+print("Welcome", username)
+# do fetch messages
+while True:
+    line = input(':')
+    # parse line for @ signs, store them to list
+    # parse for 'q' or 'r' to signify refresh or quit
 
 # step 1: ask for username
 # step 2: fetch messages from server
