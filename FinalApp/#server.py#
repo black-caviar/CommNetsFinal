@@ -4,10 +4,7 @@ import cgi
 import sqlite3
 import atexit
 
-# This needs error check
-#c = conn.cursor()
-#check if table already exists, otherwise create it
-#c.execute('''CREATE TABLE messages (from_user text, to_user text, date text, message text)''')
+PORT = 
 
 def load_db(db):
     try:
@@ -16,7 +13,7 @@ def load_db(db):
     except sqlite3.OperationalError as e:
         print("Operational error in SQL")
         print(str(e))
-        if input("Create new DB? yes/no") == 'yes':
+        if input("Create new DB? yes/no ") == 'yes':
             db.execute('''CREATE TABLE messages (from_user text, to_user text, date text, message text)''')
         else:
             print("DB unmodified")
