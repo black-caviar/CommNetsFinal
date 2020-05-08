@@ -1,7 +1,7 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from urlparse import parse_qs
 import cgi
-en
+
 class GP(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)

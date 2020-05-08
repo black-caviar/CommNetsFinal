@@ -1,0 +1,5 @@
+import requests
+
+print("writing post request to port 8088")
+mydata = {'from_user':'test', 'to_user':'nikita', 'message':'hello there'}
+requests.post('127.0.0.1', data = mydata}
