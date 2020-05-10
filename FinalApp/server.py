@@ -62,7 +62,7 @@ class GP(BaseHTTPRequestHandler):
         vals = [form.getvalue("from_user"), form.getvalue("to_user"), 'now',  form.getvalue("message")]
         print(vals)
         c.execute('''INSERT INTO messages VALUES (?,?,?,?)''', vals)
-        c.commit()
+        db.commit()
         self.wfile.write(str.encode("<html><body><h1>POST Request Received!</h1></body></html>"))
         # is this even necessary?
         # This is a response to the post request. Maybe write like success?
