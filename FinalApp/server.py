@@ -3,11 +3,10 @@ from urllib.parse import parse_qs
 import cgi
 import sqlite3
 import atexit
+import json
 
-# This needs error check
-#c = conn.cursor()
-#check if table already exists, otherwise create it
-#c.execute('''CREATE TABLE messages (from_user text, to_user text, date text, message text)''')
+PORT = 8088
+
 
 def load_db(db):
     try:
@@ -16,7 +15,7 @@ def load_db(db):
     except sqlite3.OperationalError as e:
         print("Operational error in SQL")
         print(str(e))
-        if input("Create new DB? yes/no") == 'yes':
+        if input("Create new DB? yes/no ") == 'yes':
             db.execute('''CREATE TABLE messages (from_user text, to_user text, date text, message text)''')
         else:
             print("DB unmodified")
@@ -32,8 +31,27 @@ class GP(BaseHTTPRequestHandler):
     def do_GET(self):
         self._set_headers()
         print(self.path)
-        print(parse_qs(self.path[2:]))
-        self.wfile.write("<html><body><h1>Get Request Received!</h1></body></html>")
+        #print(parse_qs(self.path[2:]))
+        get_opt = parse_qs(self.path[2:])
+        print(get_opt)
+        print(get_opt['user'])
+        users = get_opt['user']
+        msg_dict = {}
+        for i in users:
+            print(i)
+            c.execute("SELECT from_user, date, message FROM messages WHERE to_user = '%s'" % i)
+            response = c.fetchall()
+            #try getting all messages sent after a certain time
+            #print(type(response))
+            #print(type(response[1]))
+            msg_dict[i] = response
+            #data_str = json.dumps(response)
+            #print(data_str)
+        #self.wfile.write(str.encode("<html><body><h1>Get Request Received!</h1></body></html>"))
+        json_str = json.dumps(msg_dict)
+        self.wfile.write(str.encode(json_str))
+       
+        
     def do_POST(self):
         self._set_headers()
         form = cgi.FieldStorage(
@@ -41,16 +59,16 @@ class GP(BaseHTTPRequestHandler):
             headers=self.headers,
             environ={'REQUEST_METHOD': 'POST'}
         )
-        print(form.getvalue("from_user"))
-        print(form.getvalue("to_user"))
-        print(form.getvalue("message"))
         vals = [form.getvalue("from_user"), form.getvalue("to_user"), 'now',  form.getvalue("message")]
         print(vals)
         c.execute('''INSERT INTO messages VALUES (?,?,?,?)''', vals)
-        conn.commit()
+        c.commit()
         self.wfile.write(str.encode("<html><body><h1>POST Request Received!</h1></body></html>"))
+        # is this even necessary?
+        # This is a response to the post request. Maybe write like success?
+        # Then we can have a message received or failed status code
 
-def run(server_class=HTTPServer, handler_class=GP, port=8088):
+def run(server_class=HTTPServer, handler_class=GP, port=PORT):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     print('Server running at localhost:8088...')
@@ -58,5 +76,6 @@ def run(server_class=HTTPServer, handler_class=GP, port=8088):
 
 db = sqlite3.connect('messages.db')
 atexit.register(db.close)
-load_db(db)
+c = db.cursor()
+load_db(c)
 run()
